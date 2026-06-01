@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSCE Smart Campus Information System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --bg4: #252d40;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #8b93a8;
+    --text3: #5a6278;
+    --accent: #4f8ef7;
+    --accent2: #3a7aeb;
+    --green: #34c78a;
+    --amber: #f5a623;
+    --red: #f05252;
+    --purple: #9b7ff4;
+    --teal: #2ec4b6;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --sidebar: 220px;
+    --header: 56px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sidebar);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .logo-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  nav { padding: 10px 8px; flex: 1; }
+  .nav-section {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    padding: 8px 8px 4px;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.15s;
+    margin-bottom: 1px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(79,142,247,0.15); color: var(--accent); font-weight: 500; }
+  .nav-item i { font-size: 15px; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* MAIN */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  #topbar {
+    height: var(--header);
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .page-title { font-size: 15px; font-weight: 600; flex: 1; }
+  .page-subtitle { font-size: 12px; color: var(--text2); }
+
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .stat-icon {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  /* FORM */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+  label {
+    font-size: 12px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+  input, select, textarea {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 8px 11px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  input::placeholder { color: var(--text3); }
+  select option { background: var(--bg3); }
+
+  button {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    padding: 9px 16px;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-secondary {
+    background: var(--bg4);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { background: var(--bg3); }
+  .btn-danger {
+    background: rgba(240,82,82,0.15);
+    color: var(--red);
+    border: 1px solid rgba(240,82,82,0.25);
+  }
+  .btn-danger:hover { background: rgba(240,82,82,0.25); }
+  .btn-success {
+    background: rgba(52,199,138,0.15);
+    color: var(--green);
+    border: 1px solid rgba(52,199,138,0.25);
+  }
+  .btn-success:hover { background: rgba(52,199,138,0.25); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--text3);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:hover td { background: var(--bg3); }
+  tr:last-child td { border-bottom: none; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-green { background: rgba(52,199,138,0.15); color: var(--green); }
+  .badge-red { background: rgba(240,82,82,0.15); color: var(--red); }
+  .badge-amber { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .badge-blue { background: rgba(79,142,247,0.15); color: var(--accent); }
+  .badge-purple { background: rgba(155,127,244,0.15); color: var(--purple); }
+
+  /* ALERTS */
+  .alert {
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert-success { background: rgba(52,199,138,0.1); color: var(--green); border: 1px solid rgba(52,199,138,0.2); }
+  .alert-error { background: rgba(240,82,82,0.1); color: var(--red); border: 1px solid rgba(240,82,82,0.2); }
+  .alert-info { background: rgba(79,142,247,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
+  #alert-box { display: none; }
+
+  /* SEARCH ROW */
+  .search-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .search-row input { flex: 1; }
+
+  /* COURSE GRID */
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .course-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .course-card:hover { border-color: var(--border2); }
+  .course-card.selected { border-color: var(--accent); background: rgba(79,142,247,0.08); }
+  .course-code { font-size: 11px; font-weight: 600; color: var(--accent); font-family: var(--mono); }
+  .course-name { font-size: 13px; font-weight: 500; margin: 3px 0; }
+  .course-meta { font-size: 11px; color: var(--text3); }
+
+  /* ANALYTICS */
+  .chart-wrap { height: 260px; position: relative; margin-top: 10px; }
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  /* FEE */
+  .fee-result {
+    background: var(--bg3);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 14px;
+  }
+  .fee-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .fee-row:last-child { border-bottom: none; }
+  .fee-total { font-weight: 600; font-size: 15px; color: var(--green); }
+
+  /* GRADE RING */
+  .grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+  }
+  .empty-state i { font-size: 36px; margin-bottom: 10px; display: block; }
+  .empty-state p { font-size: 13px; }
+
+  /* MOBILE */
+  @media (max-width: 640px) {
+    :root { --sidebar: 0px; }
+    #sidebar { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .analytics-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="logo">
+    <div class="logo-badge">DSCE</div>
+    <div class="logo-title">Smart Campus</div>
+    <div class="logo-sub">Information System</div>
+  </div>
+  <nav>
+    <div class="nav-section">Overview</div>
+    <button class="nav-item active" onclick="showView('dashboard')">
+      <i class="ti ti-layout-dashboard"></i> Dashboard
+    </button>
+
+    <div class="nav-section">Students</div>
+    <button class="nav-item" onclick="showView('register')">
+      <i class="ti ti-user-plus"></i> Registration
+    </button>
+    <button class="nav-item" onclick="showView('records')">
+      <i class="ti ti-users"></i> Records
+    </button>
+    <button class="nav-item" onclick="showView('search')">
+      <i class="ti ti-search"></i> Search & Sort
+    </button>
+
+    <div class="nav-section">Academic</div>
+    <button class="nav-item" onclick="showView('enroll')">
+      <i class="ti ti-book"></i> Course Enrollment
+    </button>
+    <button class="nav-item" onclick="showView('academic')">
+      <i class="ti ti-certificate"></i> Academic Records
+    </button>
+    <button class="nav-item" onclick="showView('fee')">
+      <i class="ti ti-receipt"></i> Fee Calculator
+    </button>
+
+    <div class="nav-section">Analytics</div>
+    <button class="nav-item" onclick="showView('analytics')">
+      <i class="ti ti-chart-bar"></i> Performance
+    </button>
+  </nav>
+  <div class="sidebar-footer">v1.0 · Lab Project</div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="page-subtitle" id="page-subtitle">Campus overview</div>
+    </div>
+    <button class="btn-success" onclick="seedData()" style="margin-left:auto; font-size:12px; padding:6px 12px;">
+      <i class="ti ti-database-import"></i> Load Sample Data
+    </button>
+  </div>
+
+  <div id="content">
+    <div id="alert-box" class="alert"></div>
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--accent)"><i class="ti ti-users"></i></div>
+          <div class="stat-label">Students</div>
+          <div class="stat-value" id="stat-students">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--green)"><i class="ti ti-book"></i></div>
+          <div class="stat-label">Courses</div>
+          <div class="stat-value">4</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--purple)"><i class="ti ti-list-check"></i></div>
+          <div class="stat-label">Enrollments</div>
+          <div class="stat-value" id="stat-enrollments">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--amber)"><i class="ti ti-trending-up"></i></div>
+          <div class="stat-label">Avg Marks</div>
+          <div class="stat-value" id="stat-avg">—</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div class="card">
+          <div class="card-title">Recent Students</div>
+          <div id="dash-students">
+            <div class="empty-state"><i class="ti ti-users"></i><p>No students yet. Load sample data to get started.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Available Courses</div>
+          <div id="dash-courses"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="view-register" class="view">
+      <div class="card">
+        <div class="card-title">Register New Student</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="reg-id" placeholder="e.g. SC010" style="text-transform:uppercase">
+          </div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="reg-name" placeholder="Student name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Department</label>
+            <select id="reg-dept">
+              <option value="">Select department</option>
+              <option>CSE</option>
+              <option>IT</option>
+              <option>AIML</option>
+              <option>ECE</option>
+              <option>ME</option>
+              <option>CV</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Semester</label>
+            <select id="reg-sem">
+              <option value="">Select semester</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Overall Marks (0–100)</label>
+            <input type="number" id="reg-marks" placeholder="e.g. 78.5" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>Attendance % (0–100)</label>
+            <input type="number" id="reg-att" placeholder="e.g. 85" min="0" max="100">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="registerStudent()"><i class="ti ti-user-plus"></i> Register</button>
+          <button class="btn-secondary" onclick="clearRegForm()"><i class="ti ti-refresh"></i> Clear</button>
+        </div>
+      </div>
+
+      <div id="reg-result" style="display:none" class="card">
+        <div class="card-title">Registration Result</div>
+        <div id="reg-result-content"></div>
+      </div>
+    </div>
+
+    <!-- RECORDS -->
+    <div id="view-records" class="view">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <div class="card-title" style="margin-bottom:0">All Students</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" style="font-size:12px;padding:6px 10px;" onclick="showView('register')"><i class="ti ti-plus"></i> Add</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Name</th><th>Dept</th><th>Sem</th><th>Marks</th><th>Attendance</th><th>Grade</th><th>Result</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="records-body">
+              <tr><td colspan="9"><div class="empty-state"><i class="ti ti-users"></i><p>No records found</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH & SORT -->
+    <div id="view-search" class="view">
+      <div class="card">
+        <div class="card-title">Search & Sort Students</div>
+        <div class="search-row">
+          <input type="text" id="search-term" placeholder="Search by ID, name, or department…" oninput="searchStudents()">
+          <select id="sort-by" onchange="sortStudents()" style="width:160px;">
+            <option value="">Sort by…</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="marks">Marks (High-Low)</option>
+            <option value="attendance">Attendance (High-Low)</option>
+            <option value="semester">Semester</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Name</th><th>Dept</th><th>Sem</th><th>Marks</th><th>Attendance</th><th>Grade</th><th>Result</th></tr>
+            </thead>
+            <tbody id="search-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENROLLMENT -->
+    <div id="view-enroll" class="view">
+      <div class="card">
+        <div class="card-title">Course Enrollment</div>
+        <div class="form-group" style="max-width:300px;">
+          <label>Student ID</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="enroll-id" placeholder="e.g. SC001" style="text-transform:uppercase">
+            <button class="btn-secondary" onclick="loadEnrollment()"><i class="ti ti-search"></i></button>
+          </div>
+        </div>
+        <div id="enroll-courses" style="display:none">
+          <div style="margin-bottom:10px; font-size:13px; color:var(--text2);">Select courses to enroll:</div>
+          <div class="course-grid" id="course-cards"></div>
+          <button class="btn-primary" onclick="saveEnrollment()"><i class="ti ti-device-floppy"></i> Save Enrollment</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">All Enrollments</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student ID</th><th>Name</th><th>Enrolled Courses</th><th>Total Credits</th></tr></thead>
+            <tbody id="enroll-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACADEMIC RECORDS -->
+    <div id="view-academic" class="view">
+      <div class="card">
+        <div class="card-title">Add Academic Record</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="ac-id" placeholder="e.g. SC001" style="text-transform:uppercase">
+          </div>
+          <div class="form-group">
+            <label>Course</label>
+            <select id="ac-course">
+              <option value="">Select course</option>
+              <option value="PY101">PY101 – Python Programming</option>
+              <option value="DB102">DB102 – Database Management</option>
+              <option value="WD103">WD103 – Web Development</option>
+              <option value="AI104">AI104 – AI Fundamentals</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Internal Marks (0–40)</label>
+            <input type="number" id="ac-internal" placeholder="e.g. 34" min="0" max="40">
+          </div>
+          <div class="form-group">
+            <label>External Marks (0–60)</label>
+            <input type="number" id="ac-external" placeholder="e.g. 51" min="0" max="60">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="addAcademicRecord()"><i class="ti ti-plus"></i> Add Record</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Academic Records</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student ID</th><th>Course</th><th>Internal</th><th>External</th><th>Total</th><th>Grade</th></tr></thead>
+            <tbody id="academic-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEE -->
+    <div id="view-fee" class="view">
+      <div class="card" style="max-width:480px;">
+        <div class="card-title">Fee Calculator</div>
+        <div class="form-group">
+          <label>Student ID</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="fee-id" placeholder="e.g. SC001" style="text-transform:uppercase">
+            <button class="btn-secondary" onclick="calcFee()"><i class="ti ti-calculator"></i> Calculate</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Scholarship % (0–100)</label>
+          <input type="number" id="fee-scholarship" placeholder="0" min="0" max="100" value="0">
+        </div>
+        <div id="fee-result" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="view-analytics" class="view">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Avg Marks</div>
+          <div class="stat-value" id="an-avg">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Highest</div>
+          <div class="stat-value" id="an-max">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lowest</div>
+          <div class="stat-value" id="an-min">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pass Rate</div>
+          <div class="stat-value" id="an-pass">—</div>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="card">
+          <div class="card-title">Marks per Student</div>
+          <div class="chart-wrap"><canvas id="chart-marks" role="img" aria-label="Bar chart of student marks"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Dept Avg Marks</div>
+          <div class="chart-wrap"><canvas id="chart-dept" role="img" aria-label="Bar chart of average marks by department"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-grid">
+        <div class="card">
+          <div class="card-title">Grade Distribution</div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="chart-grades" role="img" aria-label="Doughnut chart of grade distribution"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Attendance vs Marks</div>
+          <div class="chart-wrap"><canvas id="chart-scatter" role="img" aria-label="Scatter chart of attendance vs marks"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// DATA STORE
+const COURSES = {
+  PY101: { name: "Python Programming", credits: 4, fee: 4500 },
+  DB102: { name: "Database Management", credits: 3, fee: 3500 },
+  WD103: { name: "Web Development", credits: 3, fee: 4000 },
+  AI104: { name: "AI Fundamentals", credits: 4, fee: 5500 },
+};
+
+let students = JSON.parse(localStorage.getItem('sc_students') || '[]');
+let enrollments = JSON.parse(localStorage.getItem('sc_enrollments') || '{}');
+let academicRecords = JSON.parse(localStorage.getItem('sc_academic') || '[]');
+
+function save() {
+  localStorage.setItem('sc_students', JSON.stringify(students));
+  localStorage.setItem('sc_enrollments', JSON.stringify(enrollments));
+  localStorage.setItem('sc_academic', JSON.stringify(academicRecords));
+}
+
+function calcGrade(m) {
+  if (m >= 90) return 'A+'; if (m >= 80) return 'A'; if (m >= 70) return 'B';
+  if (m >= 60) return 'C'; if (m >= 50) return 'D'; if (m >= 40) return 'E'; return 'F';
+}
+function getResult(m, a) { return (m >= 40 && a >= 75) ? 'Pass' : 'Needs Improvement'; }
+function gradeColor(g) {
+  if (g === 'A+' || g === 'A') return '#34c78a';
+  if (g === 'B' || g === 'C') return '#f5a623';
+  if (g === 'D' || g === 'E') return '#9b7ff4';
+  return '#f05252';
+}
+
+// VIEWS
+const pageInfo = {
+  dashboard: ['Dashboard', 'Campus overview'],
+  register: ['Student Registration', 'Add new student'],
+  records: ['Student Records', 'All registered students'],
+  search: ['Search & Sort', 'Find and filter students'],
+  enroll: ['Course Enrollment', 'Manage course registrations'],
+  academic: ['Academic Records', 'Internal & external marks'],
+  fee: ['Fee Calculator', 'Calculate fees with scholarship'],
+  analytics: ['Performance Analytics', 'Charts and statistics'],
+};
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick').includes("'" + name + "'")) n.classList.add('active');
+  });
+  const info = pageInfo[name] || [name, ''];
+  document.getElementById('page-title').textContent = info[0];
+  document.getElementById('page-subtitle').textContent = info[1];
+  hideAlert();
+  if (name === 'records') renderRecords(students);
+  if (name === 'search') renderSearchTable(students);
+  if (name === 'enroll') renderEnrollTable();
+  if (name === 'academic') renderAcademicTable();
+  if (name === 'analytics') renderAnalytics();
+  if (name === 'dashboard') renderDashboard();
+}
+
+// ALERT
+function showAlert(type, msg) {
+  const el = document.getElementById('alert-box');
+  el.className = 'alert alert-' + type;
+  el.innerHTML = '<i class="ti ti-' + (type === 'success' ? 'check' : type === 'error' ? 'alert-triangle' : 'info-circle') + '"></i> ' + msg;
+  el.style.display = 'flex';
+  setTimeout(() => el.style.display = 'none', 3500);
+}
+function hideAlert() { document.getElementById('alert-box').style.display = 'none'; }
+
+// REGISTER
+function registerStudent() {
+  const id = document.getElementById('reg-id').value.trim().toUpperCase();
+  const name = document.getElementById('reg-name').value.trim();
+  const dept = document.getElementById('reg-dept').value;
+  const sem = parseInt(document.getElementById('reg-sem').value);
+  const marks = parseFloat(document.getElementById('reg-marks').value);
+  const att = parseFloat(document.getElementById('reg-att').value);
+
+  if (!id || !name || !dept || !sem || isNaN(marks) || isNaN(att)) return showAlert('error', 'Please fill all fields correctly.');
+  if (students.find(s => s.student_id === id)) return showAlert('error', 'Student ID already exists.');
+  if (marks < 0 || marks > 100 || att < 0 || att > 100) return showAlert('error', 'Marks and attendance must be between 0 and 100.');
+
+  const student = { student_id: id, name, department: dept, semester: sem, marks, attendance: att };
+  students.push(student);
+  save();
+
+  const grade = calcGrade(marks);
+  const result = getResult(marks, att);
+  const box = document.getElementById('reg-result');
+  box.style.display = 'block';
+  document.getElementById('reg-result-content').innerHTML = `
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">STUDENT ID</div><div style="font-family:var(--mono);color:var(--accent)">${id}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">NAME</div><div>${name}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">DEPARTMENT</div><div>${dept}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">SEMESTER</div><div>${sem}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">GRADE</div><div style="color:${gradeColor(grade)};font-weight:600;font-size:18px;">${grade}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">RESULT</div>
+        <span class="badge ${result === 'Pass' ? 'badge-green' : 'badge-red'}">${result}</span>
+      </div>
+    </div>`;
+  showAlert('success', `${name} registered successfully with grade ${grade}.`);
+  renderDashboard();
+}
+
+function clearRegForm() {
+  ['reg-id','reg-name','reg-dept','reg-sem','reg-marks','reg-att'].forEach(id => {
+    const el = document.getElementById(id); el.value = '';
+  });
+  document.getElementById('reg-result').style.display = 'none';
+}
+
+// RECORDS TABLE
+function gradeHtml(g) {
+  return `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:700;background:${gradeColor(g)}22;color:${gradeColor(g)}">${g}</span>`;
+}
+
+function renderRecords(data) {
+  const tbody = document.getElementById('records-body');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="ti ti-users"></i><p>No student records found</p></div></td></tr>'; return; }
+  tbody.innerHTML = data.map(s => {
+    const g = calcGrade(s.marks), r = getResult(s.marks, s.attendance);
+    return `<tr>
+      <td style="font-family:var(--mono);color:var(--accent)">${s.student_id}</td>
+      <td>${s.name}</td>
+      <td><span class="badge badge-blue">${s.department}</span></td>
+      <td>${s.semester}</td>
+      <td>${s.marks}</td>
+      <td>${s.attendance}%</td>
+      <td>${gradeHtml(g)}</td>
+      <td><span class="badge ${r === 'Pass' ? 'badge-green' : 'badge-red'}">${r}</span></td>
+      <td><button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="deleteStudent('${s.student_id}')"><i class="ti ti-trash"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteStudent(id) {
+  if (!confirm('Delete student ' + id + '?')) return;
+  students = students.filter(s => s.student_id !== id);
+  delete enrollments[id];
+  academicRecords = academicRecords.filter(r => r.student_id !== id);
+  save(); renderRecords(students); renderDashboard(); showAlert('success', 'Student removed.');
+}
+
+// SEARCH & SORT
+function searchStudents() {
+  const term = document.getElementById('search-term').value.toLowerCase();
+  const results = students.filter(s =>
+    s.student_id.toLowerCase().includes(term) ||
+    s.name.toLowerCase().includes(term) ||
+    s.department.toLowerCase().includes(term)
+  );
+  applySort(results);
+}
+
+function sortStudents() { searchStudents(); }
+
+function applySort(data) {
+  const by = document.getElementById('sort-by').value;
+  let sorted = [...data];
+  if (by === 'name') sorted.sort((a,b) => a.name.localeCompare(b.name));
+  else if (by === 'marks') sorted.sort((a,b) => b.marks - a.marks);
+  else if (by === 'attendance') sorted.sort((a,b) => b.attendance - a.attendance);
+  else if (by === 'semester') sorted.sort((a,b) => a.semester - b.semester);
+  renderSearchTable(sorted);
+}
+
+function renderSearchTable(data) {
+  const tbody = document.getElementById('search-body');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="ti ti-search"></i><p>No results found</p></div></td></tr>'; return; }
+  tbody.innerHTML = data.map(s => {
+    const g = calcGrade(s.marks), r = getResult(s.marks, s.attendance);
+    return `<tr>
+      <td style="font-family:var(--mono);color:var(--accent)">${s.student_id}</td>
+      <td>${s.name}</td>
+      <td><span class="badge badge-blue">${s.department}</span></td>
+      <td>${s.semester}</td>
+      <td>${s.marks}</td>
+      <td>${s.attendance}%</td>
+      <td>${gradeHtml(g)}</td>
+      <td><span class="badge ${r === 'Pass' ? 'badge-green' : 'badge-red'}">${r}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ENROLLMENT
+let selectedCourses = new Set();
+
+function loadEnrollment() {
+  const id = document.getElementById('enroll-id').value.trim().toUpperCase();
+  if (!students.find(s => s.student_id === id)) return showAlert('error', 'Student not found.');
+  selectedCourses = new Set(enrollments[id] || []);
+  const grid = document.getElementById('course-cards');
+  grid.innerHTML = Object.entries(COURSES).map(([code, c]) => `
+    <div class="course-card ${selectedCourses.has(code) ? 'selected' : ''}" id="cc-${code}" onclick="toggleCourse('${code}')">
+      <div class="course-code">${code}</div>
+      <div class="course-name">${c.name}</div>
+      <div class="course-meta">${c.credits} credits · ₹${c.fee.toLocaleString()}</div>
+    </div>`).join('');
+  document.getElementById('enroll-courses').style.display = 'block';
+}
+
+function toggleCourse(code) {
+  if (selectedCourses.has(code)) selectedCourses.delete(code); else selectedCourses.add(code);
+  document.getElementById('cc-' + code).classList.toggle('selected', selectedCourses.has(code));
+}
+
+function saveEnrollment() {
+  const id = document.getElementById('enroll-id').value.trim().toUpperCase();
+  if (!id) return showAlert('error', 'Enter a student ID first.');
+  enrollments[id] = Array.from(selectedCourses);
+  save(); renderEnrollTable(); showAlert('success', 'Enrollment saved for ' + id + '.');
+}
+
+function renderEnrollTable() {
+  const tbody = document.getElementById('enroll-body');
+  const entries = Object.entries(enrollments).filter(([id, courses]) => courses.length > 0);
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="ti ti-book"></i><p>No enrollments yet</p></div></td></tr>'; return; }
+  tbody.innerHTML = entries.map(([id, codes]) => {
+    const s = students.find(st => st.student_id === id);
+    const credits = codes.reduce((sum, c) => sum + (COURSES[c]?.credits || 0), 0);
+    return `<tr>
+      <td style="font-family:var(--mono);color:var(--accent)">${id}</td>
+      <td>${s ? s.name : '—'}</td>
+      <td>${codes.map(c => `<span class="badge badge-purple" style="margin-right:4px;">${c}</span>`).join('')}</td>
+      <td>${credits}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ACADEMIC RECORDS
+function addAcademicRecord() {
+  const id = document.getElementById('ac-id').value.trim().toUpperCase();
+  const code = document.getElementById('ac-course').value;
+  const internal = parseFloat(document.getElementById('ac-internal').value);
+  const external = parseFloat(document.getElementById('ac-external').value);
+  if (!id || !code || isNaN(internal) || isNaN(external)) return showAlert('error', 'Fill all fields.');
+  if (!students.find(s => s.student_id === id)) return showAlert('error', 'Student not found.');
+  if (internal < 0 || internal > 40) return showAlert('error', 'Internal marks must be 0–40.');
+  if (external < 0 || external > 60) return showAlert('error', 'External marks must be 0–60.');
+  const total = internal + external;
+  const grade = calcGrade(total);
+  academicRecords.push({ student_id: id, course_code: code, internal_marks: internal, external_marks: external, total, grade });
+  save(); renderAcademicTable(); showAlert('success', `Record added: ${id} · ${code} · Grade ${grade}`);
+}
+
+function renderAcademicTable() {
+  const tbody = document.getElementById('academic-body');
+  if (!academicRecords.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="ti ti-certificate"></i><p>No academic records yet</p></div></td></tr>'; return; }
+  tbody.innerHTML = academicRecords.map(r => `<tr>
+    <td style="font-family:var(--mono);color:var(--accent)">${r.student_id}</td>
+    <td><span class="badge badge-purple">${r.course_code}</span></td>
+    <td>${r.internal_marks}</td>
+    <td>${r.external_marks}</td>
+    <td><strong>${r.total}</strong></td>
+    <td>${gradeHtml(r.grade)}</td>
+  </tr>`).join('');
+}
+
+// FEE
+function calcFee() {
+  const id = document.getElementById('fee-id').value.trim().toUpperCase();
+  const scholarship = parseFloat(document.getElementById('fee-scholarship').value) || 0;
+  if (!students.find(s => s.student_id === id)) return showAlert('error', 'Student not found.');
+  const courses = enrollments[id] || [];
+  if (!courses.length) return showAlert('error', 'No enrolled courses for this student.');
+  const total = courses.reduce((sum, c) => sum + (COURSES[c]?.fee || 0), 0);
+  const discount = total * scholarship / 100;
+  const payable = total - discount;
+  const div = document.getElementById('fee-result');
+  div.style.display = 'block';
+  div.innerHTML = `<div class="fee-result">
+    ${courses.map(c => `<div class="fee-row"><span>${c} – ${COURSES[c].name}</span><span>₹${COURSES[c].fee.toLocaleString()}</span></div>`).join('')}
+    ${scholarship > 0 ? `<div class="fee-row"><span>Scholarship (${scholarship}%)</span><span style="color:var(--green)">−₹${discount.toLocaleString()}</span></div>` : ''}
+    <div class="fee-row"><span class="fee-total">Total Payable</span><span class="fee-total">₹${payable.toLocaleString()}</span></div>
+  </div>`;
+}
+
+// DASHBOARD
+function renderDashboard() {
+  document.getElementById('stat-students').textContent = students.length;
+  const totalEnroll = Object.values(enrollments).reduce((s, c) => s + c.length, 0);
+  document.getElementById('stat-enrollments').textContent = totalEnroll;
+  if (students.length) {
+    const avg = students.reduce((s, st) => s + st.marks, 0) / students.length;
+    document.getElementById('stat-avg').textContent = avg.toFixed(1);
+  } else document.getElementById('stat-avg').textContent = '—';
+
+  const dashS = document.getElementById('dash-students');
+  if (!students.length) {
+    dashS.innerHTML = '<div class="empty-state"><i class="ti ti-users"></i><p>No students yet. Click "Load Sample Data" above.</p></div>';
+  } else {
+    dashS.innerHTML = students.slice(-5).reverse().map(s => {
+      const g = calcGrade(s.marks);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(79,142,247,0.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent)">${s.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div><div style="font-size:11px;color:var(--text3)">${s.department} · Sem ${s.semester}</div></div>
+        <div style="color:${gradeColor(g)};font-weight:700;font-size:15px">${g}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const dashC = document.getElementById('dash-courses');
+  dashC.innerHTML = Object.entries(COURSES).map(([code, c]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-size:12px;color:var(--accent);font-family:var(--mono)">${code}</div><div style="font-size:13px">${c.name}</div></div>
+      <div style="font-size:11px;color:var(--text3)">${c.credits} cr</div>
+    </div>`).join('');
+}
+
+// ANALYTICS CHARTS
+let chartMarks, chartDept, chartGrades, chartScatter;
+
+function renderAnalytics() {
+  const data = students.length ? students : [];
+  if (!data.length) return;
+
+  const marks = data.map(s => s.marks);
+  const names = data.map(s => s.name.split(' ')[0]);
+  const avgMarks = data.reduce((s, st) => s + st.marks, 0) / data.length;
+  const pass = data.filter(s => getResult(s.marks, s.attendance) === 'Pass').length;
+
+  document.getElementById('an-avg').textContent = avgMarks.toFixed(1);
+  document.getElementById('an-max').textContent = Math.max(...marks);
+  document.getElementById('an-min').textContent = Math.min(...marks);
+  document.getElementById('an-pass').textContent = Math.round(pass / data.length * 100) + '%';
+
+  const colors = data.map(s => s.marks >= 75 ? '#34c78a' : s.marks >= 50 ? '#f5a623' : '#f05252');
+
+  if (chartMarks) chartMarks.destroy();
+  chartMarks = new Chart(document.getElementById('chart-marks'), {
+    type: 'bar',
+    data: { labels: names, datasets: [{ label: 'Marks', data: marks, backgroundColor: colors, borderRadius: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b93a8' } },
+        x: { grid: { display: false }, ticks: { color: '#8b93a8' } }
+      }
+    }
+  });
+
+  // Dept avg
+  const deptMap = {};
+  data.forEach(s => {
+    if (!deptMap[s.department]) deptMap[s.department] = [];
+    deptMap[s.department].push(s.marks);
+  });
+  const depts = Object.keys(deptMap);
+  const deptAvgs = depts.map(d => +(deptMap[d].reduce((a,b) => a+b, 0) / deptMap[d].length).toFixed(1));
+  if (chartDept) chartDept.destroy();
+  chartDept = new Chart(document.getElementById('chart-dept'), {
+    type: 'bar',
+    data: { labels: depts, datasets: [{ label: 'Avg Marks', data: deptAvgs, backgroundColor: '#4f8ef7', borderRadius: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b93a8' } },
+        x: { grid: { display: false }, ticks: { color: '#8b93a8' } }
+      }
+    }
+  });
+
+  // Grade distribution
+  const gradeCounts = {};
+  data.forEach(s => { const g = calcGrade(s.marks); gradeCounts[g] = (gradeCounts[g] || 0) + 1; });
+  const gradeLabels = Object.keys(gradeCounts);
+  const gradeData = gradeLabels.map(g => gradeCounts[g]);
+  const gColors = gradeLabels.map(g => gradeColor(g));
+  if (chartGrades) chartGrades.destroy();
+  chartGrades = new Chart(document.getElementById('chart-grades'), {
+    type: 'doughnut',
+    data: { labels: gradeLabels, datasets: [{ data: gradeData, backgroundColor: gColors, borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { color: '#8b93a8', font: { size: 12 }, padding: 12 } } }
+    }
+  });
+
+  // Scatter
+  if (chartScatter) chartScatter.destroy();
+  chartScatter = new Chart(document.getElementById('chart-scatter'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Students',
+        data: data.map(s => ({ x: s.attendance, y: s.marks, label: s.name })),
+        backgroundColor: '#4f8ef788', pointRadius: 7
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw.label}: Att ${ctx.raw.x}%, Marks ${ctx.raw.y}` } } },
+      scales: {
+        x: { title: { display: true, text: 'Attendance %', color: '#8b93a8' }, min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b93a8' } },
+        y: { title: { display: true, text: 'Marks', color: '#8b93a8' }, min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b93a8' } }
+      }
+    }
+  });
+}
+
+// SEED
+function seedData() {
+  students = [
+    { student_id:'SC001', name:'Aarav Sharma', department:'IT', semester:3, marks:88, attendance:92 },
+    { student_id:'SC002', name:'Diya Patel', department:'CSE', semester:3, marks:76, attendance:84 },
+    { student_id:'SC003', name:'Kabir Rao', department:'IT', semester:4, marks:91, attendance:95 },
+    { student_id:'SC004', name:'Meera Nair', department:'AIML', semester:2, marks:67, attendance:78 },
+    { student_id:'SC005', name:'Rohan Gupta', department:'CSE', semester:4, marks:39, attendance:72 },
+  ];
+  enrollments = {
+    SC001: ['PY101','DB102'],
+    SC002: ['PY101','WD103'],
+    SC003: ['AI104','PY101'],
+    SC004: ['DB102','WD103'],
+    SC005: ['PY101'],
+  };
+  save(); renderDashboard(); showAlert('success', 'Sample data loaded successfully.');
+}
+
+// INIT
+renderDashboard();
+renderSearchTable(students);
+</script>
+</body>
+</html>
